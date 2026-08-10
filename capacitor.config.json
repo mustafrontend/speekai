@@ -1,6 +1,6 @@
 {
-  "appId": "com.speekai.speechtotext.app",
-  "appName": "SpeekAI",
+  "appId": "com.voicenotes.speechtotext.app",
+  "appName": "VoxNote",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

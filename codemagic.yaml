@@ -1,6 +1,6 @@
 workflows:
   ios-release:
-    name: SpeekAI iOS App Store Release
+    name: VoxNote iOS App Store Release
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
@@ -21,7 +21,7 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "com.speekai.speechtotext.app" \
+          app-store-connect fetch-signing-files "com.voicenotes.speechtotext.app" \
             --type IOS_APP_STORE \
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
@@ -39,7 +39,13 @@ workflows:
       - name: Upload IPA to TestFlight
         script: |
           app-store-connect publish \
-            --path build/ios/ipa/App.ipa
+            --path build/ios/ipa/App.ipa \
+            --apple-id 6800090505
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        apple_id: 6800090505
+        submit_to_testflight: true
