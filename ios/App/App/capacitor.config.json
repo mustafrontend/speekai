@@ -1,0 +1,6 @@
+{
+	"appId": "com.speekai.speechtotext.app",
+	"appName": "SpeekAI",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
