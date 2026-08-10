@@ -47,5 +47,4 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        apple_id: 6800090505
         submit_to_testflight: true
