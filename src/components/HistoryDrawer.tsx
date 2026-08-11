@@ -71,8 +71,8 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
       {/* Slide-In Side Drawer */}
       <div className="relative z-10 w-full max-w-md bg-white h-full shadow-2xl border-l border-slate-200 flex flex-col animate-in slide-in-from-right duration-300">
         
-        {/* Header */}
-        <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        {/* Header with generous top notch & status bar clearance */}
+        <div className="pt-20 pb-4 px-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
               <FileText className="w-4 h-4" />
