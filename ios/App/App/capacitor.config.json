@@ -1,5 +1,22 @@
 {
 	"appId": "com.voicenotes.speechtotext.app",
 	"appName": "VoxNote",
-	"webDir": "dist"
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https",
+		"iosScheme": "https"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"launchAutoHide": true,
+			"backgroundColor": "#f8fafc",
+			"androidSplashResourceName": "splash",
+			"iosSpinnerStyle": "small",
+			"spinnerColor": "#dc2626"
+		}
+	},
+	"packageClassList": [
+		"PurchasesPlugin"
+	]
 }
