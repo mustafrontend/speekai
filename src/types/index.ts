@@ -1,11 +1,8 @@
 export type SupportedLanguage = 'tr' | 'en' | 'de' | 'es' | 'fr';
 
-export interface LanguageOption {
-  code: SupportedLanguage;
-  name: string;
-  flag: string;
-  speechCode: string;
-}
+export type ToneType = 'whatsapp' | 'executive' | 'email' | 'bullet' | 'clean';
+
+export type NoteCategory = 'fikir' | 'toplanti' | 'yapilacak' | 'ozel';
 
 export interface VoiceNote {
   id: string;
@@ -17,6 +14,15 @@ export interface VoiceNote {
   actionItems?: string[];
   language: SupportedLanguage;
   isAiEnhanced?: boolean;
+  category?: NoteCategory;
+  tone?: ToneType;
+}
+
+export interface ProductivityStats {
+  totalWords: number;
+  typingTimeSavedMinutes: number;
+  streakDays: number;
+  lastActiveDate: string;
 }
 
 export interface SubscriptionState {
@@ -40,3 +46,4 @@ export interface UserSettings {
   hapticFeedback: boolean;
   preferredLanguage: SupportedLanguage;
 }
+

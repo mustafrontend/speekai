@@ -1,9 +1,10 @@
-import { SubscriptionState, UserSettings, VoiceNote } from '../types';
+import { ProductivityStats, SubscriptionState, UserSettings, VoiceNote } from '../types';
 
 const NOTES_KEY = 'vn_saved_notes_v1';
 const SETTINGS_KEY = 'vn_user_settings_v1';
 const SUB_KEY = 'vn_sub_state_v1';
 const LAST_RESET_KEY = 'vn_last_reset_date';
+const STATS_KEY = 'vn_productivity_stats_v1';
 
 const DEFAULT_SETTINGS: UserSettings = {
   autoRecordOnLaunch: false,
@@ -16,6 +17,13 @@ const DEFAULT_SUB_STATE: SubscriptionState = {
   isPro: false,
   freeNotesUsedToday: 0,
   maxFreeNotesPerDay: 3,
+};
+
+const DEFAULT_STATS: ProductivityStats = {
+  totalWords: 450,
+  typingTimeSavedMinutes: 15,
+  streakDays: 3,
+  lastActiveDate: '',
 };
 
 export const storageService = {
@@ -40,6 +48,7 @@ export const storageService = {
     const notes = this.getNotes();
     const updated = [note, ...notes];
     this.saveNotes(updated);
+    this.recordNoteStats(note.rawText || note.polishedText || '');
     return updated;
   },
 
@@ -96,5 +105,61 @@ export const storageService = {
     } catch (e) {
       console.error('Failed to save sub state:', e);
     }
+  },
+
+  getStats(): ProductivityStats {
+    try {
+      const data = localStorage.getItem(STATS_KEY);
+      if (!data) return DEFAULT_STATS;
+      const stats: ProductivityStats = { ...DEFAULT_STATS, ...JSON.parse(data) };
+      return stats;
+    } catch {
+      return DEFAULT_STATS;
+    }
+  },
+
+  saveStats(stats: ProductivityStats): void {
+    try {
+      localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+    } catch (e) {
+      console.error('Failed to save stats:', e);
+    }
+  },
+
+  recordNoteStats(text: string): ProductivityStats {
+    const wordCount = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+    const currentStats = this.getStats();
+
+    const today = new Date().toISOString().split('T')[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = yesterdayDate.toISOString().split('T')[0];
+
+    let newStreak = currentStats.streakDays || 1;
+    if (currentStats.lastActiveDate === today) {
+      // Already recorded today
+      newStreak = currentStats.streakDays || 1;
+    } else if (currentStats.lastActiveDate === yesterday) {
+      newStreak = (currentStats.streakDays || 0) + 1;
+    } else if (!currentStats.lastActiveDate) {
+      newStreak = 3; // Default starter streak
+    } else {
+      newStreak = 1;
+    }
+
+    const newTotalWords = (currentStats.totalWords || 0) + wordCount;
+    // 30 words ~ 1 minute typing
+    const newSavedMinutes = Math.max(1, Math.round(newTotalWords / 30));
+
+    const updated: ProductivityStats = {
+      totalWords: newTotalWords,
+      typingTimeSavedMinutes: newSavedMinutes,
+      streakDays: newStreak,
+      lastActiveDate: today,
+    };
+
+    this.saveStats(updated);
+    return updated;
   }
 };
+

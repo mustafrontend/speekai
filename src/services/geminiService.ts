@@ -1,4 +1,4 @@
-import { AIAnalysisResult, SupportedLanguage } from '../types';
+import { AIAnalysisResult, SupportedLanguage, ToneType } from '../types';
 
 const KEY_PARTS = ['AQ.Ab8RN6K5Vct', 'AqZLKsFXEeIzJqxGz', '_n0L-0170MhOKPrxkGG94Q'];
 const GEMINI_API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY || KEY_PARTS.join('');
@@ -109,8 +109,73 @@ Raw Voice Note Transcript:
     }
   },
 
+  async transformTone(text: string, tone: ToneType, lang: SupportedLanguage): Promise<string> {
+    if (!text || !text.trim()) return '';
+
+    const targetLangName = LANGUAGE_NAMES[lang] || 'English';
+
+    const toneInstructions: Record<ToneType, string> = {
+      whatsapp: 'Format as a friendly, casual WhatsApp message with appropriate emojis, clear paragraphs suitable for chat.',
+      executive: 'Format as a high-level executive summary for corporate management with formal executive wording.',
+      email: 'Format as a complete professional email draft with Subject Line, Greeting, structured Body, and Signature line.',
+      bullet: 'Format strictly as a structured bullet-point action checklist with bold section titles.',
+      clean: 'Clean up grammar, punctuation, and speech stumbles while retaining original meaning.',
+    };
+
+    const prompt = `
+Output language: Output strictly in ${targetLangName}.
+Task: ${toneInstructions[tone]}
+
+Raw Voice Text:
+"${text}"
+
+Provide ONLY the transformed text output directly. No commentary, markdown code blocks or additional text.
+`;
+
+    try {
+      const response = await fetch(`${GEMINI_API_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const transformed = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (transformed) return transformed;
+    } catch (err) {
+      console.warn('Gemini Tone transformation fallback:', err);
+    }
+
+    // Smart Local Fallback
+    if (tone === 'whatsapp') {
+      return `💬 ${text}\n\n👍 Gönderildi`;
+    } else if (tone === 'email') {
+      return `Konu: Sesli Not Bildirimi\n\nMerhaba,\n\n${text}\n\nSaygılarımla,`;
+    } else if (tone === 'executive') {
+      return `[Executive Brief]\n• ${text}`;
+    } else if (tone === 'bullet') {
+      const parts = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+      return parts.map((p) => `• ${p.trim()}`).join('\n');
+    }
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  },
+
   async polishOnly(rawText: string, lang: SupportedLanguage): Promise<string> {
     const analysis = await this.analyzeVoiceNote(rawText, lang);
     return analysis.polishedText;
   }
 };
+

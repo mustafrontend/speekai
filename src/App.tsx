@@ -16,8 +16,22 @@ import { revenueCatService } from './services/revenueCatService';
 import { storageService } from './services/storageService';
 import { getTranslation } from './i18n/translations';
 
-import { AIAnalysisResult, SubscriptionState, SupportedLanguage, UserSettings, VoiceNote } from './types';
-import { Sparkles, Mic, CheckCircle2, Lock, Save, Copy, Share2 } from 'lucide-react';
+import { AIAnalysisResult, NoteCategory, ProductivityStats, SubscriptionState, SupportedLanguage, ToneType, UserSettings, VoiceNote } from './types';
+import { Sparkles, Mic, CheckCircle2, Lock, Save, Copy, Share2, Mail, Zap, Flame, FileText } from 'lucide-react';
+
+const CATEGORIES: { id: NoteCategory; label: string }[] = [
+  { id: 'fikir', label: '💡 Fikir' },
+  { id: 'toplanti', label: '💼 Toplantı' },
+  { id: 'yapilacak', label: '✅ Yapılacak' },
+  { id: 'ozel', label: '🔒 Özel' },
+];
+
+const TONES: { id: ToneType; label: string }[] = [
+  { id: 'whatsapp', label: '💬 WhatsApp' },
+  { id: 'executive', label: '📧 Kurumsal E-Posta' },
+  { id: 'bullet', label: '📝 Maddeli Liste' },
+  { id: 'clean', label: '✨ AI Cilala' },
+];
 
 export function App() {
   // State
@@ -26,10 +40,14 @@ export function App() {
   const [durationSeconds, setDurationSeconds] = useState<number>(0);
   const [volumeLevel, setVolumeLevel] = useState<number>(0);
   const [rawText, setRawText] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<NoteCategory>('fikir');
+  const [activeTone, setActiveTone] = useState<ToneType | null>(null);
+  const [isToneTransforming, setIsToneTransforming] = useState<boolean>(false);
 
   const [subState, setSubState] = useState<SubscriptionState>(() => revenueCatService.getSubscriptionState());
   const [settings, setSettings] = useState<UserSettings>(() => storageService.getSettings());
   const [notes, setNotes] = useState<VoiceNote[]>(() => storageService.getNotes());
+  const [stats, setStats] = useState<ProductivityStats>(() => storageService.getStats());
 
   // Modals & Sheets
   const [actionSheetOpen, setActionSheetOpen] = useState<boolean>(false);
@@ -101,6 +119,7 @@ export function App() {
     }
 
     setRawText('');
+    setActiveTone(null);
     setDurationSeconds(0);
     setIsRecording(true);
 
@@ -139,9 +158,10 @@ export function App() {
   };
 
   // Copy text action
-  const handleCopyRaw = () => {
-    if (!rawText) return;
-    navigator.clipboard.writeText(rawText);
+  const handleCopyRaw = (customText?: string) => {
+    const textToCopy = customText || rawText;
+    if (!textToCopy) return;
+    navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     showToast(t.copied);
     setTimeout(() => setCopied(false), 2000);
@@ -157,30 +177,66 @@ export function App() {
     showToast('WhatsApp...');
   };
 
+  // Share via Email action
+  const handleShareEmail = (textToShare?: string) => {
+    const message = textToShare || rawText;
+    if (!message) return;
+    const subject = encodeURIComponent('SpeekAI Sesli Not');
+    const body = encodeURIComponent(message);
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+    showToast('E-Posta Taslağı Açıldı 📧');
+  };
+
+  // AI Tone transform action in live view
+  const handleLiveToneTransform = async (tone: ToneType) => {
+    if (!rawText.trim()) return;
+    if (activeTone === tone) {
+      setActiveTone(null);
+      return;
+    }
+    setActiveTone(tone);
+    setIsToneTransforming(true);
+    try {
+      const transformed = await geminiService.transformTone(rawText, tone, currentLang);
+      setRawText(transformed);
+      showToast('Ton Dönüştürüldü ✨');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsToneTransforming(false);
+    }
+  };
+
   // Save note action (No DB needed - LocalStorage in browser)
-  const handleSaveNote = (customAnalysis?: AIAnalysisResult) => {
-    if (!rawText && !customAnalysis) {
+  const handleSaveNote = (categoryOverride?: NoteCategory, customText?: string, customAnalysis?: AIAnalysisResult) => {
+    const textToSave = customText || rawText;
+    if (!textToSave && !customAnalysis) {
       showToast('Lütfen önce bir not konuşun veya yazın!');
       return;
     }
+
+    const categoryToUse = categoryOverride || selectedCategory;
 
     const newNote: VoiceNote = {
       id: Date.now().toString(),
       timestamp: Date.now(),
       durationSeconds: durationSeconds || 5,
-      rawText: rawText || 'Voice Note',
-      polishedText: customAnalysis?.polishedText || rawText,
+      rawText: textToSave || 'Voice Note',
+      polishedText: customAnalysis?.polishedText || textToSave,
       summary: customAnalysis?.summary,
       actionItems: customAnalysis?.actionItems,
       language: currentLang,
-      isAiEnhanced: !!customAnalysis,
+      isAiEnhanced: !!customAnalysis || !!activeTone,
+      category: categoryToUse,
+      tone: activeTone || undefined,
     };
 
     const updated = storageService.addNote(newNote);
     setNotes(updated);
-    showToast('Not başarıyla hafızaya kaydedildi! 💾');
+    setStats(storageService.getStats());
+    showToast('Not kaydedildi! 💾');
     setActionSheetOpen(false);
-    setHistoryOpen(true); // Automatically open history drawer to show the saved note!
+    setHistoryOpen(true);
   };
 
   // Trigger Gemini AI Summarize & Action Items
@@ -200,7 +256,7 @@ export function App() {
     try {
       const result = await geminiService.analyzeVoiceNote(targetText, currentLang);
       setAiAnalysis(result);
-      handleSaveNote(result);
+      handleSaveNote(selectedCategory, targetText, result);
     } catch (err) {
       console.error('AI Summary Error:', err);
     } finally {
@@ -246,22 +302,52 @@ export function App() {
       />
 
       {/* Main Single Screen Layout */}
-      <main className="flex-1 max-w-xl w-full mx-auto px-4 py-6 flex flex-col justify-between gap-6">
+      <main className="flex-1 max-w-xl w-full mx-auto px-4 py-4 flex flex-col justify-between gap-4">
         
-        {/* Top Waveform Visualizer */}
-        <section className="w-full space-y-2">
+        {/* Top Waveform Visualizer & Live Transcription Container */}
+        <section className="w-full space-y-3">
           <Waveform isRecording={isRecording} volumeLevel={volumeLevel} />
           
+          {/* Quick Category Selector Bar */}
+          <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1 no-scrollbar">
+            <span className="text-[10px] font-black uppercase text-slate-400 shrink-0 tracking-wider">
+              Kategori:
+            </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              {CATEGORIES.map((cat) => {
+                const isSelected = selectedCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setSelectedCategory(cat.id);
+                      if ('vibrate' in navigator) navigator.vibrate(30);
+                    }}
+                    className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all border border-[0.5px] active:scale-[0.98] shrink-0 ${
+                      isSelected
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Editable Live Transcription Box */}
-          <div className="w-full min-h-[170px] p-4 rounded-2xl bg-white border border-slate-200 shadow-sm relative flex flex-col justify-between transition-all focus-within:ring-2 focus-within:ring-red-500/20">
+          <div className="w-full min-h-[160px] p-4 rounded-2xl bg-white border border-[0.5px] border-slate-200 shadow-sm relative flex flex-col justify-between transition-all focus-within:ring-2 focus-within:ring-red-500/20">
+            
+            {/* Header inside Box */}
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
                 <Mic className="w-3.5 h-3.5 text-red-500" /> {t.liveTranscriptionTitle}
               </span>
               {rawText && (
                 <button
-                  onClick={handleCopyRaw}
-                  className="text-[11px] font-bold text-red-600 hover:underline flex items-center gap-1"
+                  onClick={() => handleCopyRaw()}
+                  className="text-[11px] font-black text-red-600 hover:underline flex items-center gap-1 active:scale-[0.98]"
                 >
                   <Copy className="w-3 h-3" />
                   <span>{copied ? t.copied : t.copyToClipboard}</span>
@@ -269,25 +355,55 @@ export function App() {
               )}
             </div>
 
-            {/* Editable Textarea for live typing / speech output */}
+            {/* Editable Textarea */}
             <textarea
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               placeholder={isRecording ? t.listeningNotice : t.idleTranscriptionNotice}
-              rows={4}
+              rows={3}
               className="w-full text-sm font-medium text-slate-800 leading-relaxed bg-transparent border-none resize-none focus:outline-none placeholder:text-slate-400 placeholder:italic"
             />
 
-            {/* Action Bar inside Transcription Box */}
-            <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
+            {/* 1-Tap Tone Selector Bar inside Box */}
+            {rawText.trim() && (
+              <div className="pt-2 mb-2 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    🪄 AI Dönüştürücü:
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+                  {TONES.map((toneItem) => {
+                    const isSelected = activeTone === toneItem.id;
+                    return (
+                      <button
+                        key={toneItem.id}
+                        onClick={() => handleLiveToneTransform(toneItem.id)}
+                        disabled={isToneTransforming}
+                        className={`px-2 py-1 rounded-lg text-[11px] font-black border border-[0.5px] active:scale-[0.98] transition-all text-center truncate ${
+                          isSelected
+                            ? 'bg-red-500 text-white border-red-500 shadow-sm'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                        }`}
+                      >
+                        {toneItem.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 1-Tap Action Bar inside Live Transcription Box */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => handleSaveNote()}
                   disabled={!rawText.trim()}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black shadow-sm flex items-center gap-1.5 btn-kinetic ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black shadow-sm flex items-center gap-1.5 active:scale-[0.98] transition-all ${
                     rawText.trim()
-                      ? 'bg-slate-900 hover:bg-slate-800 text-white'
-                      : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                      ? 'bg-slate-900 hover:bg-slate-800 text-white border border-slate-900'
+                      : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-[0.5px] border-slate-200'
                   }`}
                 >
                   <Save className="w-3.5 h-3.5" />
@@ -295,20 +411,30 @@ export function App() {
                 </button>
 
                 {rawText.trim() && (
-                  <button
-                    onClick={() => handleShareWhatsApp()}
-                    className="px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 border border-emerald-200 flex items-center gap-1 btn-kinetic"
-                  >
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>{t.whatsApp}</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleShareWhatsApp()}
+                      className="px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-black hover:bg-emerald-100 border border-[0.5px] border-emerald-200 flex items-center gap-1 active:scale-[0.98] transition-all"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleShareEmail()}
+                      className="px-2.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-black hover:bg-blue-100 border border-[0.5px] border-blue-200 flex items-center gap-1 active:scale-[0.98] transition-all"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>E-Posta</span>
+                    </button>
+                  </>
                 )}
               </div>
 
               {rawText.trim() && (
                 <button
                   onClick={() => handleTriggerAISummary()}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-black shadow-sm flex items-center gap-1 btn-kinetic"
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-black shadow-sm flex items-center gap-1 active:scale-[0.98] transition-all"
                 >
                   <Sparkles className="w-3.5 h-3.5" /> {t.aiSummarize}
                 </button>
@@ -317,8 +443,34 @@ export function App() {
           </div>
         </section>
 
-        {/* Center/Bottom Massive Red Pulse Recording Button */}
-        <section className="w-full flex-1 flex flex-col justify-center">
+        {/* Productivity & Voice Streak Counter Card ("Zaman Tasarrufu Stats") */}
+        <section className="w-full">
+          <div className="p-3.5 rounded-2xl bg-white border border-[0.5px] border-slate-200 shadow-sm flex items-center justify-between gap-2 active:scale-[0.98] transition-all cursor-default">
+            
+            <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
+              <Zap className="w-4 h-4 text-amber-500 fill-amber-400 shrink-0" />
+              <span>⚡ {stats.typingTimeSavedMinutes} Dk Tasarruf</span>
+            </div>
+
+            <div className="h-4 w-[1px] bg-slate-200" />
+
+            <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
+              <FileText className="w-4 h-4 text-blue-500 shrink-0" />
+              <span>📝 {stats.totalWords} Kelime</span>
+            </div>
+
+            <div className="h-4 w-[1px] bg-slate-200" />
+
+            <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
+              <Flame className="w-4 h-4 text-red-500 fill-red-500 shrink-0" />
+              <span>🔥 {stats.streakDays} Gün Seri</span>
+            </div>
+
+          </div>
+        </section>
+
+        {/* Center Massive Red Pulse Recording Button */}
+        <section className="w-full flex-1 flex flex-col justify-center my-2">
           <RecordButton
             isRecording={isRecording}
             durationSeconds={durationSeconds}
@@ -332,9 +484,9 @@ export function App() {
         {!subState.isPro && (
           <div
             onClick={() => setPaywallOpen(true)}
-            className="w-full p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 border border-amber-300/60 flex items-center justify-between cursor-pointer hover:bg-amber-100/40 transition-all btn-kinetic"
+            className="w-full p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 border border-[0.5px] border-amber-300/60 flex items-center justify-between cursor-pointer hover:bg-amber-100/40 transition-all active:scale-[0.98]"
           >
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+            <div className="flex items-center gap-2 text-xs font-black text-slate-800">
               <Lock className="w-4 h-4 text-amber-600" />
               <span>
                 {subState.freeNotesUsedToday} / {subState.maxFreeNotesPerDay} {t.freeNotesRemaining}
@@ -349,7 +501,7 @@ export function App() {
       </main>
 
       {/* Footer Branding */}
-      <footer className="w-full py-3 text-center text-[11px] font-semibold text-slate-400 border-t border-slate-200/50 bg-white/50">
+      <footer className="w-full py-2.5 text-center text-[11px] font-bold text-slate-400 border-t border-[0.5px] border-slate-200/50 bg-white/50">
         {t.appName} — Zero Latency Native Dictation & AI Whisper Engine
       </footer>
 
@@ -360,12 +512,15 @@ export function App() {
         rawText={rawText}
         subState={subState}
         copied={copied}
-        onCopy={handleCopyRaw}
-        onShareWhatsApp={() => handleShareWhatsApp()}
+        onCopy={(text) => handleCopyRaw(text)}
+        onShareWhatsApp={(text) => handleShareWhatsApp(text)}
+        onShareEmail={(text) => handleShareEmail(text)}
         onAiSummarize={() => handleTriggerAISummary()}
-        onSaveNote={() => handleSaveNote()}
+        onSaveNote={(cat, customText) => handleSaveNote(cat, customText)}
         onOpenPaywall={() => setPaywallOpen(true)}
         currentLang={currentLang}
+        selectedCategory={selectedCategory}
+        onSelectCategory={(cat) => setSelectedCategory(cat)}
       />
 
       <AISummaryModal
@@ -450,3 +605,4 @@ export function App() {
     </div>
   );
 }
+
