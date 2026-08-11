@@ -1,12 +1,12 @@
 import { SubscriptionState } from '../types';
 import { storageService } from './storageService';
 
-export const REVENUECAT_PUBLIC_KEY = 'appl_KYCMWKtHLpIvVfRoVOlwEOgfuRZ';
+export const REVENUECAT_PUBLIC_KEY = 'appl_kHPiyBFSmFZJchPwOEamDypGadO';
 export const ENTITLEMENT_ID = 'pro_access';
 
 export const PRO_PRODUCTS = {
   WEEKLY: {
-    id: 'com.voicenotes.pro.weekly',
+    id: 'com.voicenotes.speechtotext.app.weekly',
     packageId: '$rc_weekly',
     price: '$3.99',
     period: 'week',
@@ -14,7 +14,7 @@ export const PRO_PRODUCTS = {
     badge: 'Popular for Cash Flow',
   },
   ANNUAL: {
-    id: 'com.voicenotes.pro.annual',
+    id: 'com.voicenotes.speechtotext.app.annual',
     packageId: '$rc_annual',
     price: '$29.99',
     period: 'year',
@@ -49,25 +49,33 @@ export const revenueCatService = {
   },
 
   async purchasePlan(plan: 'weekly' | 'annual'): Promise<SubscriptionState> {
-    // Simulate IAP purchase with RevenueCat SDK backend
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    
-    const newState: SubscriptionState = {
-      isPro: true,
-      plan,
-      expiresAt: Date.now() + (plan === 'weekly' ? 7 * 86400 * 1000 : 365 * 86400 * 1000),
-      freeNotesUsedToday: 0,
-      maxFreeNotesPerDay: 3,
-    };
+    try {
+      // Simulate IAP purchase with RevenueCat Public Key
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      
+      const newState: SubscriptionState = {
+        isPro: true,
+        plan,
+        expiresAt: Date.now() + (plan === 'weekly' ? 7 * 86400 * 1000 : 365 * 86400 * 1000),
+        freeNotesUsedToday: 0,
+        maxFreeNotesPerDay: 3,
+      };
 
-    storageService.saveSubscriptionState(newState);
-    return newState;
+      storageService.saveSubscriptionState(newState);
+      return newState;
+    } catch (err: any) {
+      throw new Error(err?.message || 'RevenueCat ödeme işlemi başlatılamadı. Lütfen tekrar deneyin.');
+    }
   },
 
   async restorePurchases(): Promise<SubscriptionState> {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    const state = this.getSubscriptionState();
-    return state;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const state = this.getSubscriptionState();
+      return state;
+    } catch (err: any) {
+      throw new Error(err?.message || 'Önceki satın alımlar geri yüklenemedi.');
+    }
   },
 
   async cancelSubscription(): Promise<SubscriptionState> {
