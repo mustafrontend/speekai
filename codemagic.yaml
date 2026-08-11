@@ -18,7 +18,6 @@ workflows:
         script: |
           npm run build
           npx cap sync ios
-          cd ios/App && pod install --repo-update || true
       - name: Set up code signing
         script: |
           keychain initialize
@@ -27,7 +26,7 @@ workflows:
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
           keychain add-certificates
-          xcode-project use-profiles
+          xcode-project use-profiles --project "ios/App/App.xcodeproj"
       - name: Set build number
         script: |
           cd ios/App
@@ -41,15 +40,9 @@ workflows:
           agvtool new-version -all $NEW_BUILD
       - name: Build iOS Xcode App
         script: |
-          if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa \
-              --workspace "ios/App/App.xcworkspace" \
-              --scheme "App"
-          else
-            xcode-project build-ipa \
-              --project "ios/App/App.xcodeproj" \
-              --scheme "App"
-          fi
+          xcode-project build-ipa \
+            --project "ios/App/App.xcodeproj" \
+            --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
