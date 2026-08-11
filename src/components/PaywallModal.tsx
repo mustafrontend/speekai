@@ -26,21 +26,40 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   if (!isOpen) return null;
   const t = getTranslation(currentLang);
 
+  const handleDismiss = () => {
+    // Strictly close modal without granting any PRO privileges or mutating state
+    onClose();
+  };
+
   const handlePurchase = async () => {
     setPurchasing(true);
     setErrorPopup(null);
     try {
       const newState = await revenueCatService.purchasePlan(selectedPlan);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-      onSubscribed(newState);
-      onClose();
+      
+      // Strict Verification: Only grant PRO if RevenueCat verified purchase as true
+      if (newState && newState.isPro) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+        onSubscribed(newState);
+        onClose();
+      } else {
+        setErrorPopup('Ödeme doğrulaması tamamlanamadı.');
+      }
     } catch (err: any) {
       console.error('RevenueCat purchase error:', err);
-      setErrorPopup(err?.message || 'RevenueCat ödeme hatası oluştu.');
+      
+      // Check if user cancelled Apple payment sheet
+      const isUserCancelled = err?.userCancelled || err?.code === 'USER_CANCELLED' || err?.message?.includes('cancelled');
+      if (isUserCancelled) {
+        // User cancelled Apple payment - DO NOT grant PRO and DO NOT show error popup
+        console.log('Kullanıcı ödeme penceresini iptal etti.');
+      } else {
+        setErrorPopup(err?.message || 'RevenueCat ödeme hatası oluştu.');
+      }
     } finally {
       setPurchasing(false);
     }
@@ -94,8 +113,8 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
         {/* Top Header Hero */}
         <div className="relative bg-gradient-to-br from-red-600 via-red-500 to-rose-600 p-6 text-white text-center overflow-hidden">
           <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-black/40 text-white transition-colors"
+            onClick={handleDismiss}
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-black/20 hover:bg-black/40 text-white transition-colors active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
