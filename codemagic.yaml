@@ -30,8 +30,13 @@ workflows:
       - name: Set build number
         script: |
           cd ios/App
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "com.voicenotes.speechtotext.app" 2>/dev/null || echo 11)
-          NEW_BUILD=$((LATEST_BUILD + 1))
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "com.voicenotes.speechtotext.app" 2>/dev/null || echo 14)
+          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" -lt 15 ]; then
+            NEW_BUILD=15
+          else
+            NEW_BUILD=$((LATEST_BUILD + 1))
+          fi
+          echo "Setting build number to $NEW_BUILD"
           agvtool new-version -all $NEW_BUILD
       - name: Build iOS Xcode App
         script: |
