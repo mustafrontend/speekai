@@ -593,12 +593,6 @@ export function App() {
           storageService.saveSettings(newSet);
           showToast('Saved');
         }}
-        onResetFreeLimits={() => {
-          const newState = { ...subState, freeNotesUsedToday: 0 };
-          storageService.saveSubscriptionState(newState);
-          setSubState(newState);
-          showToast('Limits Reset!');
-        }}
         onDeleteAccount={() => {
           if (window.confirm('Hesabınız, kaydedilmiş tüm sesli notlarınız ve verileriniz kalıcı olarak silinecek. Emin misiniz?')) {
             storageService.clearAllData();

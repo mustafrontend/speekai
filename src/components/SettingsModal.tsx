@@ -8,7 +8,6 @@ interface SettingsModalProps {
   onClose: () => void;
   settings: UserSettings;
   onUpdateSettings: (newSettings: UserSettings) => void;
-  onResetFreeLimits: () => void;
   onDeleteAccount: () => void;
   onRestorePurchases: () => void;
   currentLang: SupportedLanguage;
@@ -19,7 +18,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   settings,
   onUpdateSettings,
-  onResetFreeLimits,
   onDeleteAccount,
   onRestorePurchases,
   currentLang,
@@ -154,17 +152,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Satın Alımları Geri Yükle (Restore)</span>
               </div>
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </button>
-
-            {/* Test Limit Reset */}
-            <button
-              onClick={onResetFreeLimits}
-              className="w-full flex items-center justify-between py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold border border-[0.5px] border-slate-200 active:scale-[0.98] transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
-                <span>{t.resetLimitTest}</span>
-              </div>
             </button>
 
             {/* Delete Account & Reset Data (Apple Requirement) */}

@@ -30,9 +30,9 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h3 className="text-base font-black tracking-tight text-white">
-                App Store & RevenueCat Master Guide
+                SpeekAI App Store & RevenueCat Master Guide
               </h3>
-              <p className="text-xs text-slate-400 font-medium">ASO Keywords, Localization & Codemagic</p>
+              <p className="text-xs text-slate-400 font-medium">ASO Keywords, Legal Links & RevenueCat</p>
             </div>
           </div>
 
@@ -55,7 +55,7 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>1. ASO & Metadata (5 Dilde)</span>
+            <span>1. ASO & Metadata</span>
           </button>
 
           <button
@@ -67,7 +67,7 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
             }`}
           >
             <DollarSign className="w-3.5 h-3.5" />
-            <span>2. RevenueCat Kurgusu</span>
+            <span>2. RevenueCat Map</span>
           </button>
 
           <button
@@ -79,7 +79,7 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
             }`}
           >
             <Cpu className="w-3.5 h-3.5" />
-            <span>3. Codemagic YAML</span>
+            <span>3. Legal Links</span>
           </button>
         </div>
 
@@ -93,7 +93,7 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
                 <div className="flex items-center justify-between font-black text-slate-900">
                   <span>🇺🇸 English (US) App Store Metadata</span>
                   <button
-                    onClick={() => copyText('en', 'Title: Voice Notes: Speech to Text\nSubtitle: Dictate & Transcribe Audio\nKeywords: speech,text,transcribe,dictation,voice,memo,notes,recorder,audio,whisper,ai,converter')}
+                    onClick={() => copyText('en', 'Title: SpeekAI: AI Speech to Text\nSubtitle: 1-Tap Dictate & Summarize\nKeywords: speek,ai,speech,text,transcribe,dictation,voice,memo,notes,recorder,audio,whisper,converter')}
                     className="flex items-center gap-1 text-[11px] text-red-600 hover:underline"
                   >
                     {copiedSection === 'en' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
@@ -101,9 +101,9 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
                   </button>
                 </div>
                 <div className="font-mono bg-white p-2.5 rounded-xl border border-slate-200 text-slate-700 leading-relaxed">
-                  <strong>Title:</strong> Voice Notes: Speech to Text (28/30)<br />
-                  <strong>Subtitle:</strong> Dictate & Transcribe Audio (27/30)<br />
-                  <strong>Keywords:</strong> speech,text,transcribe,dictation,voice,memo,notes,recorder,audio,whisper,ai,converter
+                  <strong>Title:</strong> SpeekAI: AI Speech to Text (25/30)<br />
+                  <strong>Subtitle:</strong> 1-Tap Dictate & Summarize (25/30)<br />
+                  <strong>Keywords:</strong> speek,ai,speech,text,transcribe,dictation,voice,memo,notes,recorder,audio,whisper,converter
                 </div>
               </div>
 
@@ -112,7 +112,7 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
                 <div className="flex items-center justify-between font-black text-slate-900">
                   <span>🇹🇷 Türkçe App Store Metadata</span>
                   <button
-                    onClick={() => copyText('tr', 'Title: Voice Notes: Tek Tık Sesli Not\nSubtitle: Konuşmayı Anında Metne Dök\nKeywords: sesli,not,metin,çevirici,dikte,konuşma,yazı,kaydedici,whisper,ai,özet')}
+                    onClick={() => copyText('tr', 'Title: SpeekAI: AI Sesli Not\nSubtitle: Tek Tıkla Konuş ve Kopyala\nKeywords: speek,ai,sesli,not,metin,çevirici,dikte,konuşma,yazı,kaydedici,whisper,özet')}
                     className="flex items-center gap-1 text-[11px] text-red-600 hover:underline"
                   >
                     {copiedSection === 'tr' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
@@ -120,20 +120,9 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
                   </button>
                 </div>
                 <div className="font-mono bg-white p-2.5 rounded-xl border border-slate-200 text-slate-700 leading-relaxed">
-                  <strong>Title:</strong> Voice Notes: Tek Tık Sesli Not (27/30)<br />
-                  <strong>Subtitle:</strong> Konuşmayı Anında Metne Dök (26/30)<br />
-                  <strong>Keywords:</strong> sesli,not,metin,çevirici,dikte,konuşma,yazı,kaydedici,whisper,ai,özet
-                </div>
-              </div>
-
-              {/* DE Metadata */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between font-black text-slate-900">
-                  <span>🇩🇪 Deutsch / Sprachnotizen</span>
-                </div>
-                <div className="font-mono bg-white p-2.5 rounded-xl border border-slate-200 text-slate-700">
-                  <strong>Title:</strong> Sprachnotizen in Text: Diktat (28/30)<br />
-                  <strong>Keywords:</strong> sprachnotizen,text,diktat,transkribieren,audio,memo,ki
+                  <strong>Title:</strong> SpeekAI: AI Sesli Not (21/30)<br />
+                  <strong>Subtitle:</strong> Tek Tıkla Konuş ve Kopyala (26/30)<br />
+                  <strong>Keywords:</strong> speek,ai,sesli,not,metin,çevirici,dikte,konuşma,yazı,kaydedici,whisper,özet
                 </div>
               </div>
 
@@ -146,11 +135,11 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
                 <h4 className="font-black text-slate-900">💳 RevenueCat Offerings & Entitlements Map</h4>
                 <div className="font-mono bg-white p-3 rounded-xl border border-slate-200 space-y-2">
                   <div><strong>App Bundle ID:</strong> com.voicenotes.speechtotext.app</div>
-                  <div><strong>Public API Key:</strong> appl_KYCMWKtHLpIvVfRoVOlwEOgfuRZ</div>
+                  <div><strong>Public API Key:</strong> appl_kHPiyBFSmFZJchPwOEamDypGadO</div>
                   <div><strong>Entitlement ID:</strong> pro_access</div>
                   <hr className="my-1" />
-                  <div><strong>Weekly Product ID:</strong> com.voicenotes.pro.weekly ($3.99 / week, 3-day trial)</div>
-                  <div><strong>Annual Product ID:</strong> com.voicenotes.pro.annual ($29.99 / year)</div>
+                  <div><strong>Weekly Product ID:</strong> com.voicenotes.speechtotext.app.weekly ($3.99 / week, 3-day trial)</div>
+                  <div><strong>Annual Product ID:</strong> com.voicenotes.speechtotext.app.annual ($29.99 / year)</div>
                 </div>
               </div>
             </div>
@@ -159,20 +148,12 @@ export const ASOGuideModal: React.FC<ASOGuideModalProps> = ({ isOpen, onClose })
           {activeTab === 'codemagic' && (
             <div className="space-y-3 text-xs">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                <h4 className="font-black text-slate-900">🚀 codemagic.yaml CI/CD Script</h4>
-                <pre className="font-mono bg-slate-900 text-slate-100 p-3 rounded-xl overflow-x-auto text-[11px] leading-relaxed">
-{`workflows:
-  ios-release:
-    name: Voice Notes iOS Build
-    instance_type: mac_mini_m1
-    scripts:
-      - name: Install dependencies
-        script: npm install
-      - name: Build web application
-        script: npm run build
-      - name: Capacitor Sync
-        script: npx cap sync ios`}
-                </pre>
+                <h4 className="font-black text-slate-900">🌐 Active GitHub Legal URLs</h4>
+                <div className="font-mono bg-white p-3 rounded-xl border border-slate-200 space-y-2 break-all">
+                  <div><strong>Privacy Policy:</strong> https://raw.githubusercontent.com/mustafrontend/speekai/main/public/privacy.html</div>
+                  <div><strong>Terms of Service:</strong> https://raw.githubusercontent.com/mustafrontend/speekai/main/public/terms.html</div>
+                  <div><strong>Support URL:</strong> https://raw.githubusercontent.com/mustafrontend/speekai/main/public/support.html</div>
+                </div>
               </div>
             </div>
           )}
