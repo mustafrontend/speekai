@@ -599,6 +599,22 @@ export function App() {
           setSubState(newState);
           showToast('Limits Reset!');
         }}
+        onDeleteAccount={() => {
+          if (window.confirm('Hesabınız, kaydedilmiş tüm sesli notlarınız ve verileriniz kalıcı olarak silinecek. Emin misiniz?')) {
+            storageService.clearAllData();
+            setNotes([]);
+            setRawText('');
+            setStats(storageService.getStats());
+            setSubState(revenueCatService.getSubscriptionState());
+            setSettings(storageService.getSettings());
+            setSettingsOpen(false);
+            showToast('Hesabınız ve verileriniz silindi 🗑️');
+          }
+        }}
+        onRestorePurchases={async () => {
+          setSettingsOpen(false);
+          setPaywallOpen(true);
+        }}
         currentLang={currentLang}
       />
 

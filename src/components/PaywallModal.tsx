@@ -211,7 +211,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 <>
                   <Sparkles className="w-5 h-5" />
                   <span>
-                    {selectedPlan === 'weekly' ? t.startFreeTrial : t.startPro}
+                    {selectedPlan === 'weekly' ? 'Devam Et (3 Gün Ücretsiz)' : 'Devam Et (Yıllık Abonelik)'}
                   </span>
                 </>
               )}
@@ -223,7 +223,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 className="hover:text-slate-900 transition-colors flex items-center gap-1"
               >
                 <RefreshCw className="w-3 h-3" />
-                <span>{t.restorePurchases}</span>
+                <span>Satın Alımları Geri Yükle</span>
                 {restoreStatus && <span className="text-red-600 font-extrabold">({restoreStatus})</span>}
               </button>
 
@@ -231,6 +231,27 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{t.cancelAnytime}</span>
               </span>
+            </div>
+
+            {/* Legal Links for App Store Guideline 3.1.1 */}
+            <div className="pt-2 flex items-center justify-center gap-3 text-[10px] font-bold text-slate-400">
+              <a
+                href="https://raw.githubusercontent.com/mustafrontend/speekai/main/public/privacy.html"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-slate-600"
+              >
+                Gizlilik Politikası
+              </a>
+              <span>•</span>
+              <a
+                href="https://raw.githubusercontent.com/mustafrontend/speekai/main/public/terms.html"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-slate-600"
+              >
+                Kullanım Şartları
+              </a>
             </div>
           </div>
 

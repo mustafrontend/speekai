@@ -160,6 +160,18 @@ export const storageService = {
 
     this.saveStats(updated);
     return updated;
+  },
+
+  clearAllData(): void {
+    try {
+      localStorage.removeItem(NOTES_KEY);
+      localStorage.removeItem(SETTINGS_KEY);
+      localStorage.removeItem(SUB_KEY);
+      localStorage.removeItem(LAST_RESET_KEY);
+      localStorage.removeItem(STATS_KEY);
+    } catch (e) {
+      console.error('Failed to clear all data:', e);
+    }
   }
 };
 
