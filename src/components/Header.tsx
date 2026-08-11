@@ -44,10 +44,12 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200/90 shadow-md p-3 flex items-center justify-between">
         
         {/* Brand Logo & Name */}
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 to-red-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 shrink-0">
-            <Mic className="w-5 h-5 animate-pulse" />
-          </div>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="SpeekAI Logo"
+            className="w-9 h-9 rounded-xl shadow-md ring-2 ring-red-500/30 object-cover shrink-0"
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="text-sm font-black tracking-tight text-slate-900 leading-tight">

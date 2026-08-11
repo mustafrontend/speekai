@@ -68,9 +68,11 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
             <X className="w-4 h-4" />
           </button>
 
-          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center mx-auto mb-3 text-white shadow-lg">
-            <Crown className="w-8 h-8 fill-amber-300 text-amber-300" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="SpeekAI Logo"
+            className="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-xl ring-4 ring-white/30 object-cover"
+          />
 
           <span className="inline-block px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-widest mb-2 shadow-sm">
             RevenueCat Pro Unlocked
