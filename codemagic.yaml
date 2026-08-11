@@ -30,17 +30,14 @@ workflows:
       - name: Set build number
         script: |
           cd ios/App
-          agvtool new-version -all $PROJECT_BUILD_NUMBER
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "com.voicenotes.speechtotext.app" 2>/dev/null || echo 11)
+          NEW_BUILD=$((LATEST_BUILD + 1))
+          agvtool new-version -all $NEW_BUILD
       - name: Build iOS Xcode App
         script: |
           xcode-project build-ipa \
             --project "ios/App/App.xcodeproj" \
             --scheme "App"
-      - name: Upload IPA to TestFlight
-        script: |
-          app-store-connect publish \
-            --path build/ios/ipa/App.ipa \
-            --apple-id 6800090505
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
