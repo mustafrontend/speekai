@@ -18,6 +18,7 @@ workflows:
         script: |
           npm run build
           npx cap sync ios
+          cd ios/App && pod install --repo-update || true
       - name: Set up code signing
         script: |
           keychain initialize
@@ -40,9 +41,15 @@ workflows:
           agvtool new-version -all $NEW_BUILD
       - name: Build iOS Xcode App
         script: |
-          xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
-            --scheme "App"
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa \
+              --workspace "ios/App/App.xcworkspace" \
+              --scheme "App"
+          else
+            xcode-project build-ipa \
+              --project "ios/App/App.xcodeproj" \
+              --scheme "App"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
