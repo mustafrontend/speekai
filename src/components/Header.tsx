@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     // Floating Top Bar with generous top offset for mobile notch & dynamic island
     <header className="w-full sticky top-0 z-30 pt-16 pb-2 px-2.5 sm:pt-10 sm:px-6 bg-slate-50/90 backdrop-blur-md transition-all notranslate" translate="no">
-      <div className="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200/90 shadow-md p-2.5 sm:p-3 flex items-center justify-between gap-1.5 overflow-hidden">
+      <div className="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200/90 shadow-md p-2.5 sm:p-3 flex items-center justify-between gap-1.5 relative">
         
         {/* Brand Logo & Name */}
         <div className="flex items-center gap-2 shrink-0">
@@ -75,10 +75,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           
           {/* Language Selector Dropdown */}
-          <div className="relative">
+          <div className="relative notranslate" translate="no">
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="flex items-center gap-0.5 px-1.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-[11px] font-bold text-slate-800 btn-kinetic shadow-sm"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-[11px] font-bold text-slate-800 btn-kinetic shadow-sm"
             >
               <span className="text-xs">{activeLangObj.flag}</span>
               <span className="text-[10px] font-extrabold uppercase">{activeLangObj.code}</span>
@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {langMenuOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 top-full mt-2 w-36 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 notranslate" translate="no">
                 {LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
@@ -94,11 +94,11 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectLang(lang.code);
                       setLangMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-bold text-left transition-colors ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-left transition-colors ${
                       currentLang === lang.code ? 'bg-red-50 text-red-600 font-black' : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <span className="text-xs">{lang.flag}</span>
+                    <span className="text-sm">{lang.flag}</span>
                     <span>{lang.name}</span>
                   </button>
                 ))}
