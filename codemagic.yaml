@@ -27,7 +27,7 @@ workflows:
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
           keychain add-certificates
-          xcode-project use-profiles --workspace "ios/App/App.xcworkspace"
+          xcode-project use-profiles --project "ios/App/App.xcodeproj"
       - name: Set build number
         script: |
           cd ios/App
