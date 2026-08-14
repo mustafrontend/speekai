@@ -27,26 +27,17 @@ workflows:
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
           keychain add-certificates
-          cd ios/App && xcode-project use-profiles --project "App.xcodeproj"
+          xcode-project use-profiles --project "ios/App/App.xcodeproj"
       - name: Set build number
         script: |
-          cd ios/App
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "com.voicenotes.speechtotext.app" 2>/dev/null || echo 20)
-          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" -lt 20 ]; then
-            NEW_BUILD=21
-          else
-            NEW_BUILD=$((LATEST_BUILD + 1))
-          fi
-          echo "Setting build number to $NEW_BUILD"
-          agvtool new-version -all $NEW_BUILD
+          agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "com.voicenotes.speechtotext.app" 2>/dev/null || echo 20) + 1))
+        working_directory: ios/App
       - name: Build iOS Xcode App
         script: |
-          cd ios/App
           xcode-project build-ipa \
-            --project "App.xcodeproj" \
+            --project "ios/App/App.xcodeproj" \
             --scheme "App"
     artifacts:
-      - ios/App/build/ios/ipa/*.ipa
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
     publishing:
