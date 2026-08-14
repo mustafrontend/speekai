@@ -41,10 +41,12 @@ workflows:
           agvtool new-version -all $NEW_BUILD
       - name: Build iOS Xcode App
         script: |
+          cd ios/App
           xcode-project build-ipa \
-            --workspace "ios/App/App.xcworkspace" \
+            --workspace "App.xcworkspace" \
             --scheme "App"
     artifacts:
+      - ios/App/build/ios/ipa/*.ipa
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
     publishing:
