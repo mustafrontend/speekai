@@ -143,10 +143,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
           {/* Features List */}
           <div className="space-y-3">
             {[
-              'Sınırsız Sesli Not Dikte Etme & Metne Çevirme',
-              'Yapay Zeka (AI) Ton Dönüştürücü & E-Posta Taslağı',
-              'Yapay Zeka ile 3 Maddelik To-Do Aksiyon Listesi',
-              'Cihaz İçi %100 Gizlilik & Öncelikli Müşteri Desteği',
+              t.feature1,
+              t.feature2,
+              t.feature3,
+              t.feature4,
             ].map((feature, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <div className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
@@ -242,7 +242,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 className="hover:text-slate-900 transition-colors flex items-center gap-1"
               >
                 <RefreshCw className="w-3 h-3" />
-                <span>Satın Alımları Geri Yükle</span>
+                <span>{t.restorePurchases}</span>
                 {restoreStatus && <span className="text-red-600 font-extrabold">({restoreStatus})</span>}
               </button>
 
@@ -260,7 +260,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 rel="noreferrer"
                 className="hover:text-slate-600"
               >
-                Gizlilik Politikası
+                {t.privacy}
               </a>
               <span>•</span>
               <a
@@ -269,7 +269,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
                 rel="noreferrer"
                 className="hover:text-slate-600"
               >
-                Kullanım Şartları
+                {t.terms}
               </a>
             </div>
           </div>

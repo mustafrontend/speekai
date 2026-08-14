@@ -14,13 +14,6 @@ interface HistoryDrawerProps {
   currentLang: SupportedLanguage;
 }
 
-const CATEGORY_LABELS: Record<NoteCategory, string> = {
-  fikir: '💡 Fikir',
-  toplanti: '💼 Toplantı',
-  yapilacak: '✅ Yapılacak',
-  ozel: '🔒 Özel',
-};
-
 export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
   isOpen,
   onClose,
@@ -37,6 +30,16 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
 
   if (!isOpen) return null;
   const t = getTranslation(currentLang);
+
+  const getCategoryLabel = (category?: NoteCategory) => {
+    switch (category) {
+      case 'fikir': return t.catIdea;
+      case 'toplanti': return t.catMeeting;
+      case 'yapilacak': return t.catToDo;
+      case 'ozel': return t.catPrivate;
+      default: return t.catIdea;
+    }
+  };
 
   const filteredNotes = notes.filter((n) => {
     const matchesSearch =
@@ -118,9 +121,9 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
-              Tümü
+              {t.catAll}
             </button>
-            {(Object.keys(CATEGORY_LABELS) as NoteCategory[]).map((catKey) => {
+            {(['fikir', 'toplanti', 'yapilacak', 'ozel'] as NoteCategory[]).map((catKey) => {
               const isSelected = selectedCategoryFilter === catKey;
               return (
                 <button
@@ -132,7 +135,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  {CATEGORY_LABELS[catKey]}
+                  {getCategoryLabel(catKey)}
                 </button>
               );
             })}
@@ -157,7 +160,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                   <div className="flex items-center gap-2">
                     {note.category && (
                       <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-[0.5px] border-slate-200 font-black">
-                        {CATEGORY_LABELS[note.category] || note.category}
+                        {getCategoryLabel(note.category)}
                       </span>
                     )}
                     <span className="flex items-center gap-1">

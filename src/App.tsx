@@ -311,16 +311,22 @@ export function App() {
           {/* Quick Category Selector Bar */}
           <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1 no-scrollbar">
             <span className="text-[10px] font-black uppercase text-slate-400 shrink-0 tracking-wider">
-              Kategori:
+              {t.categoryLabel}
             </span>
             <div className="flex items-center gap-1.5 overflow-x-auto">
-              {CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat.id;
+              {(['fikir', 'toplanti', 'yapilacak', 'ozel'] as NoteCategory[]).map((catId) => {
+                const isSelected = selectedCategory === catId;
+                const getCatText = (id: NoteCategory) => {
+                  if (id === 'fikir') return t.catIdea;
+                  if (id === 'toplanti') return t.catMeeting;
+                  if (id === 'yapilacak') return t.catToDo;
+                  return t.catPrivate;
+                };
                 return (
                   <button
-                    key={cat.id}
+                    key={catId}
                     onClick={() => {
-                      setSelectedCategory(cat.id);
+                      setSelectedCategory(catId);
                       if ('vibrate' in navigator) navigator.vibrate(30);
                     }}
                     className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all border border-[0.5px] active:scale-[0.98] shrink-0 ${
@@ -329,7 +335,7 @@ export function App() {
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {cat.label}
+                    {getCatText(catId)}
                   </button>
                 );
               })}
@@ -369,11 +375,18 @@ export function App() {
               <div className="pt-2 mb-2 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    🪄 AI Dönüştürücü:
+                    {t.aiToneTransformer}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
-                  {TONES.map((toneItem) => {
+                  {(
+                    [
+                      { id: 'whatsapp', label: t.toneWhatsApp },
+                      { id: 'executive', label: t.toneExecutive },
+                      { id: 'bullet', label: t.toneChecklist },
+                      { id: 'clean', label: t.toneClean },
+                    ] as const
+                  ).map((toneItem) => {
                     const isSelected = activeTone === toneItem.id;
                     return (
                       <button
@@ -425,7 +438,7 @@ export function App() {
                       className="px-2.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-black hover:bg-blue-100 border border-[0.5px] border-blue-200 flex items-center gap-1 active:scale-[0.98] transition-all"
                     >
                       <Mail className="w-3.5 h-3.5" />
-                      <span>E-Posta</span>
+                      <span>{t.emailShare}</span>
                     </button>
                   </>
                 )}
@@ -449,21 +462,21 @@ export function App() {
             
             <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
               <Zap className="w-4 h-4 text-amber-500 fill-amber-400 shrink-0" />
-              <span>⚡ {stats.typingTimeSavedMinutes} Dk Tasarruf</span>
+              <span>⚡ {stats.typingTimeSavedMinutes} {t.minSaved}</span>
             </div>
 
             <div className="h-4 w-[1px] bg-slate-200" />
 
             <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
               <FileText className="w-4 h-4 text-blue-500 shrink-0" />
-              <span>📝 {stats.totalWords} Kelime</span>
+              <span>📝 {stats.totalWords} {t.wordsSpoken}</span>
             </div>
 
             <div className="h-4 w-[1px] bg-slate-200" />
 
             <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
               <Flame className="w-4 h-4 text-red-500 fill-red-500 shrink-0" />
-              <span>🔥 {stats.streakDays} Gün Seri</span>
+              <span>🔥 {stats.streakDays} {t.dayStreak}</span>
             </div>
 
           </div>
