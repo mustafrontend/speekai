@@ -18,7 +18,7 @@ workflows:
         script: |
           npm run build
           npx cap sync ios
-          sed -i '' 's/\\/\//g' ios/App/CapApp-SPM/Package.swift || true
+          cd ios/App && pod install
       - name: Set up code signing
         script: |
           keychain initialize
@@ -27,7 +27,7 @@ workflows:
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
           keychain add-certificates
-          xcode-project use-profiles --project "ios/App/App.xcodeproj"
+          xcode-project use-profiles --workspace "ios/App/App.xcworkspace"
       - name: Set build number
         script: |
           cd ios/App
@@ -42,7 +42,7 @@ workflows:
       - name: Build iOS Xcode App
         script: |
           xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
+            --workspace "ios/App/App.xcworkspace" \
             --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
